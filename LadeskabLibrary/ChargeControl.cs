@@ -4,13 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using UsbSimulator;
 
 namespace LadeskabLibrary
 {
+    public enum ChargingState
+    {
+        CHARGING,
+        FULL,
+        DISCONNECTED,
+        OVERLOAD
+    }
+
+    public class ChargingStateEventArgs : EventArgs
+    {
+        public ChargingState _chargingState;
+    }
+
     interface IChargeControl
     {
-        //EventHandler ChargeMessage();
+        //Event triggered when charging state is different
+        public event EventHandler<ChargingStateEventArgs> ChargingStateEvent;
+
         bool IsConnected();
         void StartCharge();
         void StopCharge();
@@ -18,15 +32,19 @@ namespace LadeskabLibrary
 
     public class ChargeControl : IChargeControl
     {
-        public class ChargeEventArgs : EventArgs
-        {
-            public string chargeStatus { get; }
-        }
-
+        //Charger object
         public IUsbCharger UsbCharger { get; set; }
-        public event EventHandler<ChargeEventArgs> ChargeStatusChange;
+
+        //The charging state
+        ChargingState chargingState;
+
+        //Event other obj can subscribe to
+        public event EventHandler<ChargingStateEventArgs> ChargingStateEvent;
+
+        //Ctor-injection
         public ChargeControl(IUsbCharger usbCharger)
         {
+            chargingState = ChargingState.DISCONNECTED;
             UsbCharger = usbCharger;
             usbCharger.CurrentValueEvent += HandleCurrentChanged;
         }
@@ -40,6 +58,11 @@ namespace LadeskabLibrary
         {
             UsbCharger.StartCharge();
         }
+        public void StopCharge()
+        {
+            UsbCharger.StopCharge();
+        }
+        
 
         //May need a tolorance of 0.1A.
         public void HandleCurrentChanged(object sender, CurrentEventArgs e)
@@ -47,32 +70,36 @@ namespace LadeskabLibrary
             var currentValue = e.Current;
             if (currentValue == 0)
             {
-                //Write "please connect"
+                chargingState = ChargingState.DISCONNECTED;
+                OnNewChargeState();
             }
-            else if (currentValue > 0 && currentValue <= 5)
+            else if (currentValue > 0 && currentValue <= 5 && chargingState != ChargingState.FULL)
             {
                 //Write "Fully charged"
+                chargingState = ChargingState.FULL;
+                OnNewChargeState();
             }
-            else if (currentValue > 5 && currentValue <= 500)
+            else if (currentValue > 5 && currentValue <= 500 && chargingState != ChargingState.CHARGING)
             {
                 //Write "Charging"
+                chargingState = ChargingState.CHARGING;
+                OnNewChargeState();
             }
-            else if (currentValue > 500)
+            else if (currentValue > 500 && chargingState != ChargingState.OVERLOAD)
             {
                 UsbCharger.StopCharge();
                 //Write "Overload error!"
+                chargingState = ChargingState.OVERLOAD;
+                OnNewChargeState();
             }
-            else
-            {
-                throw new Exception("Negative amp error");
-            }
-
+            //else
+            //{
+            //    throw new Exception("Negative amp error");
+            //}
         }
-
-        public void StopCharge()
+        void OnNewChargeState()
         {
-            throw new NotImplementedException();
+            ChargingStateEvent?.Invoke(this, new ChargingStateEventArgs() {_chargingState = this.chargingState });
         }
     }
-    
 }
