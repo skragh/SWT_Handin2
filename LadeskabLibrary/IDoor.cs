@@ -24,14 +24,21 @@ namespace LadeskabLibrary
     {
         public event EventHandler DoorOpened;
         public event EventHandler DoorClosed;
-        public bool doorOpen { get; set; }
-        public bool lockedStatus { get; set; }
+        public bool doorOpen
+        { get; set;
+        }
+        public bool lockedStatus 
+        { get; set;}
 
         public Door(bool door, bool lockStat)
         {
-            doorOpen = door;
-            lockedStatus = lockStat;
-            //throw exception on doorOpen = true and lockedStatus= true
+            if (door & lockStat)
+                throw new Exception("Cant Lock open door");
+            else
+            {
+                doorOpen = door;
+                lockedStatus = lockStat;
+            }
         }
 
         public void LockDoor()
@@ -39,8 +46,8 @@ namespace LadeskabLibrary
             if (!doorOpen)
                 lockedStatus = true;
             else
-                Console.WriteLine("Exception");
-                //throw exception door isnt closed
+                //throw exception on doorOpen = true and lockedStatus= true
+                throw new Exception("DoorIsOpen");
         }
 
         public void UnlockDoor()
@@ -51,7 +58,7 @@ namespace LadeskabLibrary
         public void OnDoorOpen()
         {
             if (lockedStatus)
-                Console.WriteLine("didnt happen");
+                throw new Exception("DoorIsLocked");
             //throw exception
             else
             {
@@ -62,8 +69,13 @@ namespace LadeskabLibrary
 
         public void OnDoorClose()
         {
-            doorOpen = false;
-            DoorOpened?.Invoke(this, new IDoor.DoorEventArgs() { doorStatus = false });
+            if (!doorOpen)
+                throw new Exception("Door allready closed");
+            else
+            {
+                doorOpen = false;
+                DoorOpened?.Invoke(this, new IDoor.DoorEventArgs() { doorStatus = false });
+            }
         }
     }
 }
