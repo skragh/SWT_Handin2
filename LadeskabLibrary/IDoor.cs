@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LadeskabLibrary
 {
-    interface IDoor
+    public interface IDoor
     {
         public class DoorEventArgs : EventArgs
         {
@@ -16,14 +16,13 @@ namespace LadeskabLibrary
         void UnlockDoor();
         void OnDoorOpen();
         void OnDoorClose();
-        event EventHandler DoorOpened;
-        event EventHandler DoorClosed;
-    }
+        event EventHandler<IDoor.DoorEventArgs> DoorOpened;
+        event EventHandler<IDoor.DoorEventArgs> DoorClosed;    }
 
     public class Door : IDoor
     {
-        public event EventHandler DoorOpened;
-        public event EventHandler DoorClosed;
+        public event EventHandler<IDoor.DoorEventArgs> DoorOpened;
+        public event EventHandler<IDoor.DoorEventArgs> DoorClosed;
         public bool doorOpen
         { get; set;
         }
@@ -59,6 +58,10 @@ namespace LadeskabLibrary
         {
             if (lockedStatus)
                 throw new Exception("DoorIsLocked");
+            else if (doorOpen)
+            {
+                throw new Exception("DoorIsOpen");
+            }
             //throw exception
             else
             {
@@ -74,7 +77,7 @@ namespace LadeskabLibrary
             else
             {
                 doorOpen = false;
-                DoorOpened?.Invoke(this, new IDoor.DoorEventArgs() { doorStatus = false });
+                DoorClosed?.Invoke(this, new IDoor.DoorEventArgs() { doorStatus = false });
             }
         }
     }
