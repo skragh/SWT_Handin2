@@ -10,6 +10,7 @@ namespace LadeskabLibrary.Tests
 {
     class StationControlTests
     {
+        #region Setup
         private IDoor door;
         private IChargeControl chargeControl;
         private IReader reader;
@@ -27,7 +28,7 @@ namespace LadeskabLibrary.Tests
             Uut = new StationControl(door, chargeControl, reader, logger);
             Uut.newDisplayMessage += (o, args) => { msgArgs = args; };
         }
-
+        #endregion
         #region DoorOpened/closed events
         [Test]
         public void HandleDoorOpened_EventTriggered_AssertMethodCalled()
