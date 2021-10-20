@@ -34,8 +34,6 @@ namespace LadeskabLibrary
             this.door.DoorClosed += HandleDoorClosed;
             this.reader.NewRead += HandleIdDetected;
             chargeControl = _chargeControl;
-            chargeControl.ChargingStateEvent += HandleChargingState;
-
             currentId = null;
         }
 
@@ -97,11 +95,6 @@ namespace LadeskabLibrary
         public void ErrorHandler(string message)
         {
             newDisplayMessage?.Invoke(this, new StationMessageEventArgs() { message = $"ERROR: {message}" });
-        }
-
-        public void HandleChargingState(object sender, ChargingStateEventArgs e)
-        {
-            //chargingState = e._chargingState;
         }
     }
     

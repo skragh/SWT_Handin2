@@ -100,6 +100,25 @@ namespace LadeskabLibrary.Tests
             Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
             Assert.That(Uut.inUse is false);
         }
+
+        [Test]
+        public void HandIdDetected_NotInUseChargeConnectedTrueDoorOpenTrue_AssertExceptionCaught()
+        {
+            chargeControl.IsConnected().Returns(true);
+            string text = "FakeException";
+            door.When(x => x.LockDoor()).Do(context => { throw new Exception(text); });
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            Assert.That(msgArgs.message, Contains.Substring(text));
+        }
+        [Test]
+        public void HandIdDetected_NotInUseChargeConnectedTrueDoorOpenTrue_AssertInUseFalse()
+        {
+            chargeControl.IsConnected().Returns(true);
+            string text = "FakeException";
+            door.When(x => x.LockDoor()).Do(context => { throw new Exception(text); });
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            Assert.That(Uut.inUse is false);
+        }
         [Test]
         public void HandleIdDetected_NotInUseChargeConnectedTrueDoorClosed_AssertId()
         {
@@ -212,8 +231,6 @@ namespace LadeskabLibrary.Tests
             Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
             logger.Received().LogDoorUnlocked(5);
         }
-
-        //        logger.LogDoorUnlocked(e.idRead);
 
         #endregion
         #endregion
