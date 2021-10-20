@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LadeskabLibrary
 {
-    class StationControl
+    public class StationControl
     {
         public class StationMessageEventArgs : EventArgs
         {
@@ -15,8 +15,9 @@ namespace LadeskabLibrary
         public event EventHandler<StationMessageEventArgs> newDisplayMessage;
         public IChargeControl chargeControl { get; set; }
         public IDoor door { get; set; }
+        public bool isDoorOpen { get; set; }
 
-        StationControl(IDoor door, IChargeControl _chargeControl)
+        public StationControl(IDoor door, IChargeControl _chargeControl)
         {
             this.door = door;
             door.DoorOpened += HandleDoorOpened;
@@ -24,13 +25,15 @@ namespace LadeskabLibrary
             chargeControl = _chargeControl;
         }
         
-        private void HandleDoorOpened(object sender, IDoor.DoorEventArgs e)
+        public void HandleDoorOpened(object sender, IDoor.DoorEventArgs e)
         {
-                newDisplayMessage?.Invoke(this, new StationMessageEventArgs() { message = "Tilslut Telefon" });
+            isDoorOpen = e.doorStatus;
+            newDisplayMessage?.Invoke(this, new StationMessageEventArgs() { message = "Tilslut Telefon" });
         }
-        private void HandleDoorClosed(object sender, IDoor.DoorEventArgs e)
+        public void HandleDoorClosed(object sender, IDoor.DoorEventArgs e)
         {
-                newDisplayMessage?.Invoke(this, new StationMessageEventArgs() { message = "Indlæse RFID" });
+            isDoorOpen = e.doorStatus;
+            newDisplayMessage?.Invoke(this, new StationMessageEventArgs() { message = "Indlæse RFID" });
         }
 
 
