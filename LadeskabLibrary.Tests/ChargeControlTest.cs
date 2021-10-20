@@ -12,7 +12,7 @@ namespace LadeskabLibrary.Tests
     [TestFixture]
     class ChargeControlTest
     {
-        private ChargeControl _uut;
+        private IChargeControl _uut;
         private ChargingStateEventArgs _receivedEventArgs;
         private IUsbCharger _usbSource;
 
@@ -34,20 +34,13 @@ namespace LadeskabLibrary.Tests
         {
             Assert.That(_uut.IsConnected, Is.False);
         }
-
         #endregion
-
 
         [Test]
         public void StartCharge_PhoneNotConnected_EventFired()
         {
-            //Function start usbcharger, that then sends an event to control
-            //_uut.StartCharge();
-
-            //Control recives an event, which triggers own event
-            _usbSource.CurrentValueEvent += Raise.EventWith(new CurrentEventArgs { Current = 0 });
-
-            Assert.That(_receivedEventArgs, Is.Not.Null);
+            _uut.StartCharge();
+            _usbSource.Received().StartCharge();
         }
 
         [Test]
@@ -56,5 +49,18 @@ namespace LadeskabLibrary.Tests
             _usbSource.CurrentValueEvent += Raise.EventWith(new CurrentEventArgs { Current = 0 });
             Assert.That(_receivedEventArgs._chargingState, Is.EqualTo(ChargingState.DISCONNECTED));
         }
+
+        //Should this be possible, when StartCharge() from StatonControl is not activated?
+        [Test]
+        public void OnNewCurrentEvent_PhoneNotConnected_EventFired()
+        {
+            //Control recives an event, which triggers own event
+            _usbSource.CurrentValueEvent += Raise.EventWith(new CurrentEventArgs { Current = 0 });
+
+            Assert.That(_receivedEventArgs, Is.Not.Null);
+        }
+
+        //OnNewCurrent
+
     }
 }

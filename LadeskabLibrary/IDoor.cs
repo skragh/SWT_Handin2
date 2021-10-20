@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LadeskabLibrary
 {
-    interface IDoor
+    public interface IDoor
     {
         public class DoorEventArgs : EventArgs
         {
@@ -16,22 +16,28 @@ namespace LadeskabLibrary
         void UnlockDoor();
         void OnDoorOpen();
         void OnDoorClose();
-        event EventHandler DoorOpened;
-        event EventHandler DoorClosed;
-    }
+        event EventHandler<IDoor.DoorEventArgs> DoorOpened;
+        event EventHandler<IDoor.DoorEventArgs> DoorClosed;    }
 
     public class Door : IDoor
     {
-        public event EventHandler DoorOpened;
-        public event EventHandler DoorClosed;
-        public bool doorOpen { get; set; }
-        public bool lockedStatus { get; set; }
+        public event EventHandler<IDoor.DoorEventArgs> DoorOpened;
+        public event EventHandler<IDoor.DoorEventArgs> DoorClosed;
+        public bool doorOpen
+        { get; set;
+        }
+        public bool lockedStatus 
+        { get; set;}
 
         public Door(bool door, bool lockStat)
         {
-            doorOpen = door;
-            lockedStatus = lockStat;
-            //throw exception on doorOpen = true and lockedStatus= true
+            if (door & lockStat)
+                throw new Exception("Cant Lock open door");
+            else
+            {
+                doorOpen = door;
+                lockedStatus = lockStat;
+            }
         }
 
         public void LockDoor()
@@ -39,8 +45,8 @@ namespace LadeskabLibrary
             if (!doorOpen)
                 lockedStatus = true;
             else
-                Console.WriteLine("Exception");
-                //throw exception door isnt closed
+                //throw exception on doorOpen = true and lockedStatus= true
+                throw new Exception("DoorIsOpen");
         }
 
         public void UnlockDoor()
@@ -51,7 +57,11 @@ namespace LadeskabLibrary
         public void OnDoorOpen()
         {
             if (lockedStatus)
-                Console.WriteLine("didnt happen");
+                throw new Exception("DoorIsLocked");
+            else if (doorOpen)
+            {
+                throw new Exception("DoorIsOpen");
+            }
             //throw exception
             else
             {
@@ -62,8 +72,13 @@ namespace LadeskabLibrary
 
         public void OnDoorClose()
         {
-            doorOpen = false;
-            DoorOpened?.Invoke(this, new IDoor.DoorEventArgs() { doorStatus = false });
+            if (!doorOpen)
+                throw new Exception("Door allready closed");
+            else
+            {
+                doorOpen = false;
+                DoorClosed?.Invoke(this, new IDoor.DoorEventArgs() { doorStatus = false });
+            }
         }
     }
 }

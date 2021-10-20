@@ -20,7 +20,7 @@ namespace LadeskabLibrary
         public ChargingState _chargingState;
     }
 
-    interface IChargeControl
+    public interface IChargeControl
     {
         //Event triggered when charging state is different
         public event EventHandler<ChargingStateEventArgs> ChargingStateEvent;
