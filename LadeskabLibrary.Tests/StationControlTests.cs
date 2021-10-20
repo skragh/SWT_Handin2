@@ -58,17 +58,164 @@ namespace LadeskabLibrary.Tests
         }
         #endregion
         #region CheckId tests
-        [TestCase]
-
+        [TestCase(1)]
+        [TestCase(0)]
+        [TestCase(-1)]
         public void CheckId_CurrntIdNullIdNotNull_AssertFalse(int id)
         {
             Uut.currentId = null;
             Assert.That(Uut.CheckId(id) is false);
         }
+        [TestCase(1)]
+        [TestCase(0)]
+        [TestCase(-1)]
+        public void CheckId_CurrentIdNotNullIdIdentical_AssertTrue(int id)
+        {
+            Uut.currentId = id;
+            Assert.That(Uut.CheckId(id) is true);
+        }
+        [TestCase(5)]
+        [TestCase(0)]
+        [TestCase(-1)]
+        public void CheckId_CurrentIdNotNullIdDifferent_AssertFalse(int id)
+        {
+            Uut.currentId = 3;
+            Assert.That(Uut.CheckId(id) is false);
+        }
+
         #endregion
         #region HandleIdDetected tests
+        #region InUse == False
         [Test]
+        public void HandIdDetected_NotInUseChargeConnectedFalse_AssertMsgSent()
+        {
+            chargeControl.IsConnected().Returns(false);
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            Assert.That(msgArgs, Is.Not.Null);
+        }
+        [Test]
+        public void HandIdDetected_NotInUseChargeConnectedFalse_AssertNotInUse()
+        {
+            chargeControl.IsConnected().Returns(false);
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            Assert.That(Uut.inUse is false);
+        }
+        [Test]
+        public void HandleIdDetected_NotInUseChargeConnectedTrueDoorClosed_AssertId()
+        {
+            chargeControl.IsConnected().Returns(true);
+            Uut.HandleIdDetected(reader,new IReader.ReaderEventArgs() { idRead=5 });
+            Assert.That(Uut.currentId is 5);
+        }
+        [Test]
+        public void HandleIdDetected_NotInUseChargeConnectedTrueDoorClosed_AssertLockDoorCalled()
+        {
+            chargeControl.IsConnected().Returns(true);
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            door.Received().LockDoor();
+        }
 
+        [Test]
+        public void HandleIdDetected_NotInUseChargeConnectedTrueDoorClosed_AssertInUse()
+        {
+            chargeControl.IsConnected().Returns(true);
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            Assert.That(Uut.inUse is true);
+        }
+        [Test]
+        public void HandleIdDetected_NotInUseChargeConnectedTrueDoorClosed_AssertMsgSent()
+        {
+            chargeControl.IsConnected().Returns(true);
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            Assert.That(msgArgs, Is.Not.Null);
+        }
+        [Test]
+        public void HandleIdDetected_NotInUseChargeConnectedTrueDoorClosed_AssertLoggerCalled()
+        {
+            chargeControl.IsConnected().Returns(true);
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            logger.Received().LogDoorLockeD(5);
+        }
+        [Test]
+        public void HandleIdDetected_NotInUseChargeConnectedTrueDoorClosed_AssertChargerCalled()
+        {
+            chargeControl.IsConnected().Returns(true);
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            chargeControl.Received().StartCharge();
+        }
+
+        #endregion
+        #region InUse = true
+        [Test]
+        public void HandIdDetected_InUseTrueCheckIdFalse_AssertInUseTrue()
+        {
+            Uut.currentId = 5;
+            Uut.inUse = true;
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 3 });
+            Assert.That(Uut.inUse = true);
+        }
+        [Test]
+        public void HandIdDetected_InUseTrueCheckIdFalse_AssertMsgSent()
+        {
+            Uut.currentId = 5;
+            Uut.inUse = true;
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 3 });
+            Assert.That(msgArgs, Is.Not.Null);
+        }
+
+        [Test]
+        public void HandIdDetected_InUseTrueCheckIdTrue_AssertInUseFalse()
+        {
+            Uut.currentId = 5;
+            Uut.inUse = true;
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            Assert.That(Uut.inUse is false);
+        }
+
+        [Test]
+        public void HandIdDetected_InUseTrueCheckIdTrue_AssertCurrentIdNull()
+        {
+            Uut.currentId = 5;
+            Uut.inUse = true;
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            Assert.That(Uut.currentId is null);
+        }
+        [Test]
+        public void HandIdDetected_InUseTrueCheckIdTrue_AssertMsgSent()
+        {
+            Uut.currentId = 5;
+            Uut.inUse = true;
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            Assert.That(msgArgs,Is.Not.Null);
+        }
+        [Test]
+        public void HandIdDetected_InUseTrueCheckIdTrue_StopChargeCalled()
+        {
+            Uut.currentId = 5;
+            Uut.inUse = true;
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            chargeControl.Received().StopCharge();
+        }
+        [Test]
+        public void HandIdDetected_InUseTrueCheckIdTrue_UnlockDoorCalled()
+        {
+            Uut.currentId = 5;
+            Uut.inUse = true;
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            door.Received().UnlockDoor();
+        }
+        [Test]
+        public void HandIdDetected_InUseTrueCheckIdTrue_LogDoorUnlockedCalled()
+        {
+            Uut.currentId = 5;
+            Uut.inUse = true;
+            Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
+            logger.Received().LogDoorUnlocked(5);
+        }
+
+        //        logger.LogDoorUnlocked(e.idRead);
+
+        #endregion
         #endregion
     }
 }
