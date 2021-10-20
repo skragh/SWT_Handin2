@@ -10,7 +10,7 @@ using NUnit.Framework;
 namespace LadeskabLibrary.Tests
 {
     [TestFixture]
-    class ChargeControlTest
+    class ChargeControlTests
     {
         private IChargeControl _uut;
         private ChargingStateEventArgs _receivedEventArgs;

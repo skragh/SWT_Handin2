@@ -12,6 +12,8 @@ namespace LadeskabLibrary.Tests
     {
         private IDoor door;
         private IChargeControl chargeControl;
+        private IReader reader;
+        private ILogger logger;
         private StationControl Uut;
         private StationControl.StationMessageEventArgs msgArgs;
         [SetUp]
@@ -20,7 +22,9 @@ namespace LadeskabLibrary.Tests
             msgArgs = null;
             chargeControl = Substitute.For<IChargeControl>();
             door = Substitute.For<IDoor>();
-            Uut = new StationControl(door, chargeControl);
+            reader = Substitute.For<IReader>();
+            logger = Substitute.For<ILogger>();
+            Uut = new StationControl(door, chargeControl, reader, logger);
             Uut.newDisplayMessage += (o, args) => { msgArgs = args; };
         }
 
@@ -52,6 +56,19 @@ namespace LadeskabLibrary.Tests
             Uut.HandleDoorOpened(door, new IDoor.DoorEventArgs { doorStatus = false });
             Assert.That(msgArgs, Is.Not.Null);
         }
+        #endregion
+        #region CheckId tests
+        [TestCase]
+
+        public void CheckId_CurrntIdNullIdNotNull_AssertFalse(int id)
+        {
+            Uut.currentId = null;
+            Assert.That(Uut.CheckId(id) is false);
+        }
+        #endregion
+        #region HandleIdDetected tests
+        [Test]
+
         #endregion
     }
 }
