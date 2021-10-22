@@ -59,5 +59,25 @@ namespace LadeskabLibrary.Tests
             //Nu er det der blev udskrevet skrevet til en string
             Assert.That(output.ToString().Replace("\r", string.Empty).Replace("\n", string.Empty), Is.EqualTo(uut.ChargingMessageDeclaration.Trim() + uut.StationMessageDeclaration.Trim() + uut.StationMessage.Trim())); //Er det der kom ud, det samme som message?
         }
+
+        //At teste
+        //Enum - sat til det rigtige?
+        [TestCase(ChargingState.CHARGING, "Charging")]
+        [TestCase(ChargingState.DISCONNECTED, "Disconnected")]
+        [TestCase(ChargingState.FULL, "Fully Charged")]
+        [TestCase(ChargingState.OVERLOAD, "Overload Error - Too much power being transferred - Disconnecting")]
+        public void EnumChangedReadCorrectlyForChargingMessage_AssertThatLocalMessageChanged(ChargingState state, string chargingMessage)
+        {
+            //Arrange
+            IUsbCharger usb = new UsbCharger();
+            IChargeControl chargeControlForTest = new ChargeControl(usb);
+            ChargingStateEventArgs chargingEvent = new ChargingStateEventArgs();
+            chargingEvent._chargingState = state;
+            //Act
+            uut.DisplayChargeMessage(chargeControlForTest, chargingEvent);
+
+            //Assert
+            Assert.That(uut.ChargeMessage, Is.EqualTo(chargingMessage));
+        }
     }
 }
