@@ -10,5 +10,6 @@ namespace LadeskabLibrary
     {
         public void DisplayChargeMessage(object sender, ChargingStateEventArgs e);
         public void DisplayStationMessage(object sender, StationControl.StationMessageEventArgs e);
+        public void Print();
     }
 }

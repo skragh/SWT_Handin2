@@ -38,10 +38,10 @@ namespace LadeskabLibrary
         public void DisplayStationMessage(object sender, StationControl.StationMessageEventArgs e)
         {
             StationMessage = e.message;
-            print();
+            Print();
         }
 
-        public void print()
+        public void Print()
         {
             printChargingMessage();
             printStationMessage();
@@ -62,25 +62,5 @@ namespace LadeskabLibrary
         public string StationMessageDeclaration { get; private set; }
         public string ChargeMessage { get; set; }
         public string StationMessage { get; set; }
-
-
-        //public void DisplayChargeMessage(string message)
-        //{
-        //    switch (message)
-        //    {
-        //        case "currently charging":
-        //            Console.WriteLine(message);
-        //            break;
-        //        case "fully charged":
-        //            Console.WriteLine(message);
-        //            break;
-        //        case "no connection":
-        //            Console.WriteLine(message);
-        //            break;
-        //        default:
-        //            Console.WriteLine("Error exception. Charging information is invalid. Noget er gået galt, eks. kortslutning. Opladning stoppes straks");
-        //            break;
-        //    }
-        //}
     }
 }

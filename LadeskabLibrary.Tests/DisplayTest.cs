@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using NSubstitute;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace LadeskabLibrary.Tests
         {
             uut = new DisplayImplementation();
         }
-
+        #region ChargeMessage
         [TestCase("Charging")]
         [TestCase("Fully Charged")]
         [TestCase("Disconnected")]
@@ -31,20 +32,21 @@ namespace LadeskabLibrary.Tests
 
             //Act - Kør displaymessage
             uut.ChargeMessage = chargeMessage;
-            uut.print(); //stringwriter -> stringbuilder -> hvad er der i
+            uut.Print(); //stringwriter -> stringbuilder -> hvad er der i
             //I stedet for at skrive til konsollen, som den normalt ville, skrives der til stringWriterForTest
 
             //Assert - hvad er der i stringbuilderen?
             //Nu er det der blev udskrevet skrevet til en string
             Assert.That(output.ToString().Replace("\r", string.Empty).Replace("\n", string.Empty), Is.EqualTo(uut.ChargingMessageDeclaration.Trim() + chargeMessage.Trim() + uut.StationMessageDeclaration.Trim())); //Er det der kom ud, det samme som message?
         }
-
+        #endregion
+        #region StationMessage
         [TestCase("Station initialized")]
         [TestCase("Not empty")]
         [TestCase("")]
         [TestCase("\r\n")]
         [TestCase("Tilslutningsfejl")]
-        public void DisplayValidStationMessage_IgnoringChargingMessage_AssertThatMessageSentToConsole(string stationMessage)
+        public void SendValidStationMessageToConsole_IgnoringChargingMessage_AssertThatMessageSentToConsole(string stationMessage)
         {
             //Arrange - setup stringwriter
             System.IO.StringWriter output = new System.IO.StringWriter(); //Oprettet en stringwriter
@@ -52,20 +54,39 @@ namespace LadeskabLibrary.Tests
 
             //Act - Kør displaymessage
             uut.StationMessage = stationMessage;
-            uut.print(); //stringwriter -> stringbuilder -> hvad er der i
+            uut.Print(); //stringwriter -> stringbuilder -> hvad er der i
             //I stedet for at skrive til konsollen, som den normalt ville, skrives der til stringWriterForTest
 
             //Assert - hvad er der i stringbuilderen?
             //Nu er det der blev udskrevet skrevet til en string
             Assert.That(output.ToString().Replace("\r", string.Empty).Replace("\n", string.Empty), Is.EqualTo(uut.ChargingMessageDeclaration.Trim() + uut.StationMessageDeclaration.Trim() + uut.StationMessage.Trim())); //Er det der kom ud, det samme som message?
         }
+        [TestCase("test")]
+        public void DisplayValidStationMessage_IgnoringChargingMessage_AssertThatMessageSentToConsole(string message)
+        {
+            //Arrange
+            //var sub = Substitute.For<IDisplay>();
 
+            IDoor door = new Door(false, false); IUsbCharger usbCharger = new UsbCharger(); IChargeControl chargeControl = new ChargeControl(usbCharger); IReader reader = new RFIDReader(); ILogger logger = new Logger();
+            StationControl sender = new StationControl(door, chargeControl, reader, logger);
+            StationControl.StationMessageEventArgs e = new StationControl.StationMessageEventArgs();
+            e.message = message;
+            //Act
+            uut.DisplayStationMessage(sender, e);
+
+            //Assert
+            Assert.That(uut.StationMessage.Trim(), Is.EqualTo(message));
+            //sub.Received().Print(); //This is not called?
+        }
+#endregion
+        #region Incoming Enum
         //At teste
         //Enum - sat til det rigtige?
         [TestCase(ChargingState.CHARGING, "Charging")]
         [TestCase(ChargingState.DISCONNECTED, "Disconnected")]
         [TestCase(ChargingState.FULL, "Fully Charged")]
         [TestCase(ChargingState.OVERLOAD, "Overload Error - Too much power being transferred - Disconnecting")]
+        [TestCase(4, "Error exception. Internal charging information is invalid")]
         public void EnumChangedReadCorrectlyForChargingMessage_AssertThatLocalMessageChanged(ChargingState state, string chargingMessage)
         {
             //Arrange
@@ -79,5 +100,17 @@ namespace LadeskabLibrary.Tests
             //Assert
             Assert.That(uut.ChargeMessage, Is.EqualTo(chargingMessage));
         }
+        #endregion
+        #region Constructor
+        [Test]
+        public void ConstructorTest_AssertThatConstructorHasSetMessages()
+        {
+            //Arrange
+            //Act
+            //Assert
+            Assert.That(uut.ChargingMessageDeclaration.Trim(), Is.EqualTo("CHARGING INFORMATION - Display information for customer"));
+            Assert.That(uut.StationMessageDeclaration.Trim(), Is.EqualTo("STATION INFORMATION - Display information for technician"));
+        }
+        #endregion
     }
 }

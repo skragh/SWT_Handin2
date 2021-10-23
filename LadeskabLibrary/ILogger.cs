@@ -8,14 +8,14 @@ namespace LadeskabLibrary
 {
     public interface ILogger
     {
-        void LogDoorLockeD(int id);
+        void LogDoorLocked(int id);
         void LogDoorUnlocked(int id);
     }
-    class Logger : ILogger
+    public class Logger : ILogger
     {
         public string logFile { get; set; }
 
-        public void LogDoorLockeD(int id)
+        public void LogDoorLocked(int id)
         {
         }
 

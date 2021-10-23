@@ -65,7 +65,7 @@ namespace LadeskabLibrary
                         door.LockDoor();
                         chargeControl.StartCharge();
                         currentId = e.idRead;
-                        logger.LogDoorLockeD(e.idRead);
+                        logger.LogDoorLocked(e.idRead);
                         newDisplayMessage?.Invoke(this, new StationMessageEventArgs() { message = "Ladeskab Optaget" });
                         inUse = true;
                     }
@@ -97,5 +97,5 @@ namespace LadeskabLibrary
             newDisplayMessage?.Invoke(this, new StationMessageEventArgs() { message = $"ERROR: {message}" });
         }
     }
-    
+
 }
