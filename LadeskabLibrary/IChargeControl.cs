@@ -64,7 +64,7 @@ namespace LadeskabLibrary
         }
         
 
-        //May need a tolorance of 0.1A.
+        //OBS May need a tolorance of 0.01A.
         public void HandleCurrentChanged(object sender, CurrentEventArgs e)
         {
             var currentValue = e.Current;
@@ -75,19 +75,23 @@ namespace LadeskabLibrary
                     CurrentChargingState = ChargingState.IDLE;
                     OnNewChargeState();
                 }
-                else if (currentValue > 0 && currentValue <= 5 && CurrentChargingState != ChargingState.FULL)
+                else if (currentValue > 0 && currentValue <= 5 &&
+                         CurrentChargingState != ChargingState.FULL)
                 {
                     //Write "Fully charged"
                     CurrentChargingState = ChargingState.FULL;
                     OnNewChargeState();
                 }
-                else if (currentValue > 5 && currentValue <= 500 && CurrentChargingState != ChargingState.CHARGING)
+                else if (currentValue > 5 && currentValue <= 500 &&
+                         CurrentChargingState != ChargingState.CHARGING &&
+                         CurrentChargingState != ChargingState.FULL)
                 {
                     //Write "Charging"
                     CurrentChargingState = ChargingState.CHARGING;
                     OnNewChargeState();
                 }
-                else if (currentValue > 500 && CurrentChargingState != ChargingState.OVERLOAD)
+                else if (currentValue > 500 && 
+                         CurrentChargingState != ChargingState.OVERLOAD)
                 {
                     UsbCharger.StopCharge();
                     //Write "Overload error!"
