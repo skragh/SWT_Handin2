@@ -11,7 +11,38 @@ using NUnit.Framework;
 namespace LadeskabLibrary.Tests
 {
     [TestFixture]
-    class ChargeControlTests
+    class ChargeControlTests_ZeroTest
+    {
+        private IChargeControl _uut;
+        private IUsbCharger _usbSource;
+
+        [SetUp]
+        public void Setup()
+        {
+            _usbSource = Substitute.For<IUsbCharger>();
+            _uut = new ChargeControl(_usbSource);
+        }
+
+        #region ZeroTests
+        //OBS May be white-box testing..?
+        [Test]
+        public void InitialState_Idle()
+        {
+            Assert.That(_uut.CurrentChargingState, Is.EqualTo(ChargingState.IDLE));
+        }
+
+        [Test]
+        public void InitialState_NotConnected()
+        {
+            Assert.That(_uut.IsConnected, Is.False);
+        }
+
+        #endregion
+    }
+
+
+    [TestFixture]
+    class ChargeControlTests_StartCharge
     {
         private IChargeControl _uut;
         private ChargingStateEventArgs _receivedEventArgs;
@@ -31,30 +62,19 @@ namespace LadeskabLibrary.Tests
                 _receivedEventArgs = args;
                 _eventsfired++;
             };
+
+            //StartCharge has been run.
+            //USB is connected.
+            _uut.StartCharge();
+            _usbSource.Connected.Returns(true);
         }
 
-        #region ZeroTests
-        //OBS May be white-box testing..?
-        [Test]
-        public void InitialState_Idle()
-        {
-            Assert.That(_uut.CurrentChargingState, Is.EqualTo(ChargingState.IDLE));
-        }
-
-        [Test]
-        public void InitialState_NotConnected()
-        {
-            Assert.That(_uut.IsConnected, Is.False);
-        }
-
-        #endregion
-        
 
         #region OneTests
         [Test]
         public void StartCharge_PhoneNotConnected_EventFired()
         {
-            _uut.StartCharge();
+            //_uut.StartCharge();
             _usbSource.Received().StartCharge();
         }
 
@@ -133,6 +153,7 @@ namespace LadeskabLibrary.Tests
         [TestCase(501)]
         public void StartCharge_FromOverloadToNewCurrentWithoutDisconnect_StillOverload(double newCurrent)
         {
+            _uut.StartCharge();
             _usbSource.CurrentValueEvent += Raise.EventWith(new CurrentEventArgs() { Current = 1000 });
             _usbSource.CurrentValueEvent += Raise.EventWith(new CurrentEventArgs() { Current = newCurrent });
             Assert.That(_receivedEventArgs._chargingState, Is.EqualTo(ChargingState.OVERLOAD));
