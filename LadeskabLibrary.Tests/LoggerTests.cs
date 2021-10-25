@@ -93,5 +93,17 @@ namespace LadeskabLibrary.Tests
             Assert.That($"On {timeOfFirstLog} - Door: {id1} - locked\nOn {uut.LatestLog} - Door: {id2} - locked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
         }
         #endregion
+        #region
+        [Test]
+        public void LogFileLocation_AssertThatLocationIsCorrect()
+        {
+            //Arrange
+            //Act
+            //uut.locationOfLogfile = Environment.CurrentDirectory + $"{filnavn}.txt";
+            string locationForTest = Environment.CurrentDirectory + $"{filnavn}.txt";
+            //Assert
+            Assert.That(locationForTest, Is.EqualTo(uut.locationOfLogfile));
+        }
+        #endregion
     }
 }
