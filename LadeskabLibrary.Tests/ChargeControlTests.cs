@@ -185,7 +185,7 @@ namespace LadeskabLibrary.Tests
         [Test]
         public void StartCharge_FromOverloadToDisconnectAndNoCurrent_Idle()
         {
-            SetInitialState(ChargingState.CHARGING);
+            SetInitialState(ChargingState.OVERLOAD);
             _usbSource.Connected.Returns(false);
             _usbSource.CurrentValueEvent += Raise.EventWith(new CurrentEventArgs() {Current = 0});
             Assert.That(_receivedEventArgs._chargingState, Is.EqualTo(ChargingState.IDLE));
@@ -280,7 +280,5 @@ namespace LadeskabLibrary.Tests
                     $"Error setting initial state. \nnew Expected state: {state}\n But state was: {_receivedEventArgs._chargingState}");
             }
         }
-
-
     }
 }
