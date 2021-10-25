@@ -11,7 +11,7 @@ namespace LadeskabLibrary
     {
         CHARGING,
         FULL,
-        DISCONNECTED,
+        IDLE,
         OVERLOAD
     }
 
@@ -24,7 +24,7 @@ namespace LadeskabLibrary
     {
         //Event triggered when charging state is different
         public event EventHandler<ChargingStateEventArgs> ChargingStateEvent;
-
+        public ChargingState CurrentChargingState {get; }
         bool IsConnected();
         void StartCharge();
         void StopCharge();
@@ -36,7 +36,7 @@ namespace LadeskabLibrary
         public IUsbCharger UsbCharger { get; set; }
 
         //The charging state
-        ChargingState chargingState;
+        public ChargingState CurrentChargingState { get; private set; }
 
         //Event other obj can subscribe to
         public event EventHandler<ChargingStateEventArgs> ChargingStateEvent;
@@ -44,7 +44,7 @@ namespace LadeskabLibrary
         //Ctor-injection
         public ChargeControl(IUsbCharger usbCharger)
         {
-            chargingState = ChargingState.DISCONNECTED;
+            CurrentChargingState = ChargingState.IDLE;
             UsbCharger = usbCharger;
             usbCharger.CurrentValueEvent += HandleCurrentChanged;
         }
@@ -70,26 +70,26 @@ namespace LadeskabLibrary
             var currentValue = e.Current;
             if (currentValue == 0)
             {
-                chargingState = ChargingState.DISCONNECTED;
+                CurrentChargingState = ChargingState.IDLE;
                 OnNewChargeState();
             }
-            else if (currentValue > 0 && currentValue <= 5 && chargingState != ChargingState.FULL)
+            else if (currentValue > 0 && currentValue <= 5 && CurrentChargingState != ChargingState.FULL)
             {
                 //Write "Fully charged"
-                chargingState = ChargingState.FULL;
+                CurrentChargingState = ChargingState.FULL;
                 OnNewChargeState();
             }
-            else if (currentValue > 5 && currentValue <= 500 && chargingState != ChargingState.CHARGING)
+            else if (currentValue > 5 && currentValue <= 500 && CurrentChargingState != ChargingState.CHARGING)
             {
                 //Write "Charging"
-                chargingState = ChargingState.CHARGING;
+                CurrentChargingState = ChargingState.CHARGING;
                 OnNewChargeState();
             }
-            else if (currentValue > 500 && chargingState != ChargingState.OVERLOAD)
+            else if (currentValue > 500 && CurrentChargingState != ChargingState.OVERLOAD)
             {
                 UsbCharger.StopCharge();
                 //Write "Overload error!"
-                chargingState = ChargingState.OVERLOAD;
+                CurrentChargingState = ChargingState.OVERLOAD;
                 OnNewChargeState();
             }
             //else
@@ -99,7 +99,7 @@ namespace LadeskabLibrary
         }
         void OnNewChargeState()
         {
-            ChargingStateEvent?.Invoke(this, new ChargingStateEventArgs() {_chargingState = this.chargingState });
+            ChargingStateEvent?.Invoke(this, new ChargingStateEventArgs() {_chargingState = this.CurrentChargingState });
         }
     }
 }

@@ -63,7 +63,7 @@ namespace LadeskabLibrary.Tests
         //At teste
         //Enum - sat til det rigtige?
         [TestCase(ChargingState.CHARGING, "Charging")]
-        [TestCase(ChargingState.DISCONNECTED, "Disconnected")]
+        [TestCase(ChargingState.IDLE, "Disconnected")]
         [TestCase(ChargingState.FULL, "Fully Charged")]
         [TestCase(ChargingState.OVERLOAD, "Overload Error - Too much power being transferred - Disconnecting")]
         public void EnumChangedReadCorrectlyForChargingMessage_AssertThatLocalMessageChanged(ChargingState state, string chargingMessage)

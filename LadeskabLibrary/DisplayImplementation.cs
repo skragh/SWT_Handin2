@@ -23,7 +23,7 @@ namespace LadeskabLibrary
                 case ChargingState.FULL:
                     ChargeMessage = "Fully Charged";
                     break;
-                case ChargingState.DISCONNECTED:
+                case ChargingState.IDLE:
                     ChargeMessage = "Disconnected";
                     break;
                 case ChargingState.OVERLOAD:
