@@ -16,18 +16,17 @@ namespace LadeskabLibrary
     {
         public Logger(string fileLocation = "LogFile")
         {
-            locationOfLogfile = $"C:/Users/Bruger/Documents/{fileLocation}.txt";
+            locationOfLogfile = Environment.CurrentDirectory + $"{fileLocation}.txt";
             if (!System.IO.File.Exists(locationOfLogfile))
             {
                 System.IO.File.WriteAllText(locationOfLogfile, "");
             }
         }
-
         public string logFile { get; set; }
         //private const string locationOfLogfile = "C:/User/Bruger/Documents/SoftwareIngeniør/GIT/SWT_Handin2/LadeskabLibrary/LogFile.txt";
         //private const string locationOfLogfile = "C:/LogFile.txt";
         //private const string locationOfLogfile = "LogFile.txt";
-        public string locationOfLogfile = "C:/Users/Bruger/Documents/LogFile.txt";
+        public string locationOfLogfile = "";
         //private string locationOfLogfile = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         public DateTime LatestLog { get; set; }
@@ -35,7 +34,7 @@ namespace LadeskabLibrary
         public void LogDoorLocked(int id)
         {
             LatestLog = DateTime.Now;
-            string logInfo = $"On {LatestLog} - Door: {id} - locked";
+            string logInfo = $"On {LatestLog} - Door: {id} - locked\n";
             File.AppendAllText(locationOfLogfile, logInfo);
         }
 

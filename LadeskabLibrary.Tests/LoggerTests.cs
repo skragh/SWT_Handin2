@@ -70,10 +70,10 @@ namespace LadeskabLibrary.Tests
         {
             //Arrange
             //Act
-            uut.LogDoorUnlocked(id);
+            uut.LogDoorLocked(id);
 
             //Assert
-            Assert.That($"On {uut.LatestLog} - Door: {id} - unlocked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
+            Assert.That($"On {uut.LatestLog} - Door: {id} - locked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
         }
 
         [TestCase(1, 2)]
@@ -85,12 +85,12 @@ namespace LadeskabLibrary.Tests
         {
             //Arrange
             //Act
-            uut.LogDoorUnlocked(id1);
+            uut.LogDoorLocked(id1);
             DateTime timeOfFirstLog = uut.LatestLog;
-            uut.LogDoorUnlocked(id2);
+            uut.LogDoorLocked(id2);
 
             //Assert
-            Assert.That($"On {timeOfFirstLog} - Door: {id1} - unlocked\nOn {uut.LatestLog} - Door: {id2} - unlocked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
+            Assert.That($"On {timeOfFirstLog} - Door: {id1} - locked\nOn {uut.LatestLog} - Door: {id2} - locked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
         }
         #endregion
     }
