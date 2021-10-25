@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using NUnit.Framework;
 
 
@@ -23,7 +24,6 @@ namespace LadeskabLibrary.Tests
             _uut = new ChargeControl(_usbSource);
         }
 
-        #region ZeroTests
         //OBS May be white-box testing..?
         [Test]
         public void InitialState_Idle()
@@ -37,7 +37,19 @@ namespace LadeskabLibrary.Tests
             Assert.That(_uut.IsConnected, Is.False);
         }
 
-        #endregion
+        [Test]
+        public void StartCharging_CallsStartChargingOnUSB_FunctionCalled()
+        {
+            _uut.StartCharge();
+            _usbSource.Received(1).StartCharge();
+        }
+
+        [Test]
+        public void StopCharging_CallsStopChargingOnUSB_FunctionCalled()
+        {
+            _uut.StopCharge();
+            _usbSource.Received(1).StopCharge();
+        }
     }
 
 

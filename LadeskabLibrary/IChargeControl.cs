@@ -38,12 +38,16 @@ namespace LadeskabLibrary
         //The charging state
         public ChargingState CurrentChargingState { get; private set; }
 
+        //If charging is active or not
+        private bool _charging;
+
         //Event other obj can subscribe to
         public event EventHandler<ChargingStateEventArgs> ChargingStateEvent;
 
         //Ctor-injection
         public ChargeControl(IUsbCharger usbCharger)
         {
+            _charging = false;
             CurrentChargingState = ChargingState.IDLE;
             UsbCharger = usbCharger;
             usbCharger.CurrentValueEvent += HandleCurrentChanged;
@@ -56,55 +60,62 @@ namespace LadeskabLibrary
 
         public void StartCharge()
         {
+            _charging = true;
             UsbCharger.StartCharge();
         }
         public void StopCharge()
         {
+            _charging = false;
             UsbCharger.StopCharge();
+            CurrentChargingState = ChargingState.IDLE;
         }
         
 
         //OBS May need a tolorance of 0.01A.
         public void HandleCurrentChanged(object sender, CurrentEventArgs e)
         {
-            var currentValue = e.Current;
-            if (CurrentChargingState != ChargingState.OVERLOAD)
+            //Only execute if charging
+            if (_charging)
             {
-                if (currentValue == 0)
+                var currentValue = e.Current;
+                if (CurrentChargingState != ChargingState.OVERLOAD)
                 {
-                    CurrentChargingState = ChargingState.IDLE;
-                    OnNewChargeState();
+                    if (currentValue == 0)
+                    {
+                        CurrentChargingState = ChargingState.IDLE;
+                        OnNewChargeState();
+                    }
+                    else if (currentValue > 0 && currentValue <= 5 &&
+                             CurrentChargingState != ChargingState.FULL)
+                    {
+                        //Write "Fully charged"
+                        CurrentChargingState = ChargingState.FULL;
+                        OnNewChargeState();
+                    }
+                    else if (currentValue > 5 && currentValue <= 500 &&
+                             CurrentChargingState != ChargingState.CHARGING &&
+                             CurrentChargingState != ChargingState.FULL)
+                    {
+                        //Write "Charging"
+                        CurrentChargingState = ChargingState.CHARGING;
+                        OnNewChargeState();
+                    }
+                    else if (currentValue > 500 &&
+                             CurrentChargingState != ChargingState.OVERLOAD)
+                    {
+                        UsbCharger.StopCharge();
+                        //Write "Overload error!"
+                        CurrentChargingState = ChargingState.OVERLOAD;
+                        OnNewChargeState();
+                    }
                 }
-                else if (currentValue > 0 && currentValue <= 5 &&
-                         CurrentChargingState != ChargingState.FULL)
+                else
                 {
-                    //Write "Fully charged"
-                    CurrentChargingState = ChargingState.FULL;
-                    OnNewChargeState();
-                }
-                else if (currentValue > 5 && currentValue <= 500 &&
-                         CurrentChargingState != ChargingState.CHARGING &&
-                         CurrentChargingState != ChargingState.FULL)
-                {
-                    //Write "Charging"
-                    CurrentChargingState = ChargingState.CHARGING;
-                    OnNewChargeState();
-                }
-                else if (currentValue > 500 && 
-                         CurrentChargingState != ChargingState.OVERLOAD)
-                {
-                    UsbCharger.StopCharge();
-                    //Write "Overload error!"
-                    CurrentChargingState = ChargingState.OVERLOAD;
-                    OnNewChargeState();
-                }
-            }
-            else
-            {
-                if (!UsbCharger.Connected && currentValue == 0)
-                {
-                    CurrentChargingState = ChargingState.IDLE;
-                    OnNewChargeState();
+                    if (!UsbCharger.Connected && currentValue == 0)
+                    {
+                        CurrentChargingState = ChargingState.IDLE;
+                        OnNewChargeState();
+                    }
                 }
             }
         }
