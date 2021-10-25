@@ -11,11 +11,23 @@ namespace LadeskabLibrary.Tests
     class DisplayTest
     {
         private DisplayImplementation uut;
+        private IChargeControl chargeControlForTest;
+        private IStationControl stationControlForTest;
+        private IUsbCharger usbCharger;
+        private ILogger logger;
+        private IReader reader;
+        private IDoor door;
 
         [SetUp]
         public void setup()
         {
-            uut = new DisplayImplementation();
+            usbCharger = Substitute.For<UsbCharger>();
+            logger = Substitute.For<Logger>("TestLog");
+            reader = Substitute.For<RFIDReader>();
+            door = Substitute.For<Door>(false, false);
+            chargeControlForTest = Substitute.For<ChargeControl>(usbCharger);
+            stationControlForTest = Substitute.For<StationControl>(door, chargeControlForTest, reader, logger);
+            uut = new DisplayImplementation(chargeControlForTest, stationControlForTest);
         }
         #region ChargeMessage
         [TestCase("Charging")]
@@ -23,7 +35,6 @@ namespace LadeskabLibrary.Tests
         [TestCase("Disconnected")]
         [TestCase("Overload Error - Too much power being transferred - Disconnecting")]
         [TestCase("Error exception. Internal charging information is invalid")]
-        [Test]
         public void DisplayValidChargeMessages_IgnoringStationMessage_AssertThatMessageSentToConsole(string chargeMessage)
         {
             //Arrange - setup stringwriter
@@ -65,14 +76,13 @@ namespace LadeskabLibrary.Tests
         public void DisplayValidStationMessage_IgnoringChargingMessage_AssertThatMessageSentToConsole(string message)
         {
             //Arrange
-            //var sub = Substitute.For<IDisplay>();
-
-            IDoor door = new Door(false, false); IUsbCharger usbCharger = new UsbCharger(); IChargeControl chargeControl = new ChargeControl(usbCharger); IReader reader = new RFIDReader(); ILogger logger = new Logger();
-            StationControl sender = new StationControl(door, chargeControl, reader, logger);
+            /*IUsbCharger usbCharger = new UsbCharger(); IChargeControl chargeControl = new ChargeControl(usbCharger);*/
+            //IDoor door = new Door(false, false); IReader reader = new RFIDReader(); ILogger logger = new Logger();
+            //StationControl sender = new StationControl(door, chargeControlForTest, reader, logger);
             StationControl.StationMessageEventArgs e = new StationControl.StationMessageEventArgs();
             e.message = message;
             //Act
-            uut.DisplayStationMessage(sender, e);
+            uut.DisplayStationMessage(stationControlForTest, e);
 
             //Assert
             Assert.That(uut.StationMessage.Trim(), Is.EqualTo(message));
@@ -90,8 +100,8 @@ namespace LadeskabLibrary.Tests
         public void EnumChangedReadCorrectlyForChargingMessage_AssertThatLocalMessageChanged(ChargingState state, string chargingMessage)
         {
             //Arrange
-            IUsbCharger usb = new UsbCharger();
-            IChargeControl chargeControlForTest = new ChargeControl(usb);
+            //IUsbCharger usb = new UsbCharger();
+            //IChargeControl chargeControlForTest = new ChargeControl(usb);
             ChargingStateEventArgs chargingEvent = new ChargingStateEventArgs();
             chargingEvent._chargingState = state;
             //Act
@@ -108,8 +118,8 @@ namespace LadeskabLibrary.Tests
             //Arrange
             //Act
             //Assert
-            Assert.That(uut.ChargingMessageDeclaration.Trim(), Is.EqualTo("CHARGING INFORMATION - Display information for customer"));
-            Assert.That(uut.StationMessageDeclaration.Trim(), Is.EqualTo("STATION INFORMATION - Display information for technician"));
+            Assert.That(uut.ChargingMessageDeclaration.Trim(), Is.EqualTo("CHARGING INFORMATION"));
+            Assert.That(uut.StationMessageDeclaration.Trim(), Is.EqualTo("STATION INFORMATION"));
         }
         #endregion
     }
