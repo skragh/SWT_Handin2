@@ -21,7 +21,7 @@ namespace LadeskabLibrary.Tests
         [SetUp]
         public void setup()
         {
-            usbCharger = Substitute.For<UsbCharger>();
+            usbCharger = Substitute.For<IUsbCharger>();
             logger = Substitute.For<Logger>("TestLog");
             reader = Substitute.For<RFIDReader>();
             door = Substitute.For<Door>(false, false);
