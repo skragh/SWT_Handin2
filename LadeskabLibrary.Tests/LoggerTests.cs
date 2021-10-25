@@ -23,7 +23,7 @@ namespace LadeskabLibrary.Tests
         [TearDown]
         public void tearDown()
         {
-            System.IO.File.Delete(uut.locationOfLogfile);
+            System.IO.File.Delete(uut.LogFile);
         }
 
         #region logUnlocked
@@ -40,7 +40,7 @@ namespace LadeskabLibrary.Tests
             uut.LogDoorUnlocked(id);
 
             //Assert
-            Assert.That($"On {uut.LatestLog} - Door: {id} - unlocked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
+            Assert.That($"On {uut.LatestLog} - Door: {id} - unlocked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.LogFile)));
         }
 
         [TestCase(1, 2)]
@@ -57,7 +57,7 @@ namespace LadeskabLibrary.Tests
             uut.LogDoorUnlocked(id2);
 
             //Assert
-            Assert.That($"On {timeOfFirstLog} - Door: {id1} - unlocked\nOn {uut.LatestLog} - Door: {id2} - unlocked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
+            Assert.That($"On {timeOfFirstLog} - Door: {id1} - unlocked\nOn {uut.LatestLog} - Door: {id2} - unlocked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.LogFile)));
         }
         #endregion
         #region logLocked
@@ -73,7 +73,7 @@ namespace LadeskabLibrary.Tests
             uut.LogDoorLocked(id);
 
             //Assert
-            Assert.That($"On {uut.LatestLog} - Door: {id} - locked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
+            Assert.That($"On {uut.LatestLog} - Door: {id} - locked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.LogFile)));
         }
 
         [TestCase(1, 2)]
@@ -90,7 +90,7 @@ namespace LadeskabLibrary.Tests
             uut.LogDoorLocked(id2);
 
             //Assert
-            Assert.That($"On {timeOfFirstLog} - Door: {id1} - locked\nOn {uut.LatestLog} - Door: {id2} - locked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
+            Assert.That($"On {timeOfFirstLog} - Door: {id1} - locked\nOn {uut.LatestLog} - Door: {id2} - locked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.LogFile)));
         }
         #endregion
         #region
@@ -99,10 +99,11 @@ namespace LadeskabLibrary.Tests
         {
             //Arrange
             //Act
-            //uut.locationOfLogfile = Environment.CurrentDirectory + $"{filnavn}.txt";
+            //uut.
+            //= Environment.CurrentDirectory + $"{filnavn}.txt";
             string locationForTest = Environment.CurrentDirectory + $"{filnavn}.txt";
             //Assert
-            Assert.That(locationForTest, Is.EqualTo(uut.locationOfLogfile));
+            Assert.That(locationForTest, Is.EqualTo(uut.LogFile));
         }
         #endregion
     }

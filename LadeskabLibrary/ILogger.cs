@@ -16,18 +16,17 @@ namespace LadeskabLibrary
     {
         public Logger(string fileLocation = "LogFile")
         {
-            locationOfLogfile = Environment.CurrentDirectory + $"{fileLocation}.txt";
-            if (!System.IO.File.Exists(locationOfLogfile))
+            LogFile = Environment.CurrentDirectory + $"{fileLocation}.txt";
+            if (!System.IO.File.Exists(LogFile))
             {
-                System.IO.File.WriteAllText(locationOfLogfile, "");
+                System.IO.File.WriteAllText(LogFile, "");
             }
         }
-        public string logFile { get; set; }
-        //private const string locationOfLogfile = "C:/User/Bruger/Documents/SoftwareIngeniør/GIT/SWT_Handin2/LadeskabLibrary/LogFile.txt";
-        //private const string locationOfLogfile = "C:/LogFile.txt";
-        //private const string locationOfLogfile = "LogFile.txt";
-        public string locationOfLogfile = "";
-        //private string locationOfLogfile = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        public string LogFile { get; set; }
+        //private const string LogFile = "C:/User/Bruger/Documents/SoftwareIngeniør/GIT/SWT_Handin2/LadeskabLibrary/LogFile.txt";
+        //private const string LogFile = "C:/LogFile.txt";
+        //private const string LogFile = "LogFile.txt";
+        //private string LogFile = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         public DateTime LatestLog { get; set; }
 
@@ -35,14 +34,14 @@ namespace LadeskabLibrary
         {
             LatestLog = DateTime.Now;
             string logInfo = $"On {LatestLog} - Door: {id} - locked\n";
-            File.AppendAllText(locationOfLogfile, logInfo);
+            File.AppendAllText(LogFile, logInfo);
         }
 
         public void LogDoorUnlocked(int id)
         {
             LatestLog = DateTime.Now;
             string logInfo = $"On {LatestLog} - Door: {id} - unlocked\n";
-            File.AppendAllText(locationOfLogfile, logInfo);
+            File.AppendAllText(LogFile, logInfo);
         }
     }
 }
