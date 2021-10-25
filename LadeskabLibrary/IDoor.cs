@@ -23,29 +23,29 @@ namespace LadeskabLibrary
     {
         public event EventHandler<IDoor.DoorEventArgs> DoorOpened;
         public event EventHandler<IDoor.DoorEventArgs> DoorClosed;
-        public bool doorOpen
+        public bool OpenStatOpen
         { get; set;
         }
         public bool lockedStatus 
         { get; set;}
 
-        public Door(bool door, bool lockStat)
+        public Door(bool openStat, bool lockStat)
         {
-            if (door & lockStat)
-                throw new Exception("Cant Lock open door");
+            if (openStat & lockStat)
+                throw new Exception("Cant Lock open openStat");
             else
             {
-                doorOpen = door;
+                OpenStatOpen = openStat;
                 lockedStatus = lockStat;
             }
         }
 
         public void LockDoor()
         {
-            if (!doorOpen)
+            if (!OpenStatOpen)
                 lockedStatus = true;
             else
-                //throw exception on doorOpen = true and lockedStatus= true
+                //throw exception on OpenStatOpen = true and lockedStatus= true
                 throw new Exception("DoorIsOpen");
         }
 
@@ -58,25 +58,25 @@ namespace LadeskabLibrary
         {
             if (lockedStatus)
                 throw new Exception("DoorIsLocked");
-            else if (doorOpen)
+            else if (OpenStatOpen)
             {
                 throw new Exception("DoorIsOpen");
             }
             //throw exception
             else
             {
-                doorOpen = true;
+                OpenStatOpen = true;
                 DoorOpened?.Invoke(this, new IDoor.DoorEventArgs() { doorStatus = true });
             }
         }
 
         public void OnDoorClose()
         {
-            if (!doorOpen)
+            if (!OpenStatOpen)
                 throw new Exception("Door allready closed");
             else
             {
-                doorOpen = false;
+                OpenStatOpen = false;
                 DoorClosed?.Invoke(this, new IDoor.DoorEventArgs() { doorStatus = false });
             }
         }

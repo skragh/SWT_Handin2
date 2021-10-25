@@ -8,8 +8,15 @@ namespace LadeskabLibrary
 {
     public class DisplayImplementation : IDisplay
     {
-        public DisplayImplementation()
+        public DisplayImplementation(IChargeControl chargChargeControl, StationControl stationControl)
         {
+            chargChargeControl.ChargingStateEvent += DisplayChargeMessage;
+            stationControl.newDisplayMessage += DisplayStationMessage;
+            ChargingMessageDeclaration = "CHARGING INFORMATION";
+            StationMessageDeclaration = "STATION INFORMATION";
+        }
+
+        public DisplayImplementation(){
             ChargingMessageDeclaration = "CHARGING INFORMATION - Display information for customer";
             StationMessageDeclaration = "STATION INFORMATION - Display information for technician";
         }

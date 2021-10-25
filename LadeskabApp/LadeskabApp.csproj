@@ -14,4 +14,8 @@
     <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.14" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LadeskabLibrary\LadeskabLibrary.csproj" />
+  </ItemGroup>
+
 </Project>
