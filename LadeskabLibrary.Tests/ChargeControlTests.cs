@@ -54,7 +54,7 @@ namespace LadeskabLibrary.Tests
 
 
     [TestFixture]
-    class ChargeControlTests_StartCharge
+    class ChargeControlTests_Charge
     {
         private IChargeControl _uut;
         private ChargingStateEventArgs _receivedEventArgs;
@@ -82,10 +82,8 @@ namespace LadeskabLibrary.Tests
 
         #region OneTests
         [Test]
-        public void StartCharge_PhoneNotConnected_EventFired()
-        {
-            _usbSource.Received().StartCharge();
-        }
+        //public void StartCharge_PhoneNotConnected_EventFired()
+        //Delete, because never happens
 
         [TestCase(0)]
         [TestCase(-2)]
@@ -241,6 +239,31 @@ namespace LadeskabLibrary.Tests
 
         #endregion
 
+        #region StopCharge
+
+        [TestCase(ChargingState.OVERLOAD)]
+        [TestCase(ChargingState.FULL)]
+        [TestCase(ChargingState.IDLE)]
+        [TestCase(ChargingState.CHARGING)]
+        public void StopChargeNotCalled_FromAnyState_StopUSBNotCalled(ChargingState initState)
+        {
+            SetInitialState(initState);
+            _usbSource.Received(0).StopCharge();
+        }
+
+        [TestCase(ChargingState.OVERLOAD)]
+        [TestCase(ChargingState.FULL)]
+        [TestCase(ChargingState.IDLE)]
+        [TestCase(ChargingState.CHARGING)]
+        public void StopCharge_FromAnyState_StopUSBCalled(ChargingState initState)
+        {
+            SetInitialState(initState);
+            _uut.StopCharge();
+            _usbSource.Received(1).StopCharge();
+        }
+
+        #endregion
+
         #endregion
 
 
@@ -272,6 +295,7 @@ namespace LadeskabLibrary.Tests
 
             if (_receivedEventArgs._chargingState == state)
             {
+                _usbSource.ClearReceivedCalls();
                 _eventsfired = 0;
             }
             else
