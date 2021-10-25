@@ -12,53 +12,86 @@ namespace LadeskabLibrary.Tests
     class LoggerTests
     {
         private Logger uut;
+        private string filnavn = "LogFileTest";
 
         [SetUp]
         public void setup()
         {
-            uut = new Logger();
+            uut = new Logger(filnavn);
         }
 
-        //At teste - 2 styks: Både locked og unlocked
-        //Blive koden kørt?
-        //Er det gemt? AKA kan logfilen tilgås bagefter, og indeholder den det korrekte? Tjek for format
-        //Kan der gemmes flere beskeder?
+        [TearDown]
+        public void tearDown()
+        {
+            System.IO.File.Delete(uut.locationOfLogfile);
+        }
 
         #region logUnlocked
         //https://stackoverflow.com/questions/12480563/c-sharp-unit-test-a-streamwriter-parameter
         [TestCase(3)]
+        [TestCase(55)]
+        [TestCase(int.MaxValue)]
+        [TestCase(-1)]
+        [TestCase(int.MinValue)]
         public void RunLoggingCode_Unlocked_AssertDoorUnlockedLogged(int id)
         {
-            Assert.Pass();
-            //Definer en memorystream og reroute streamen til den nye memorystream, som herefter kan læses fra
             //Arrange
-            using (var stream = new MemoryStream())         //Opret memorystream, som informationen kommer til at blive gemt i. Ligesom med stringwriter i Displaytest
-            using (var writer = new StreamWriter(stream))   //Opret en writer, som skrives til
-            {
-                //Act
-                uut.LogDoorUnlocked(id); //Kører metoden
+            //Act
+            uut.LogDoorUnlocked(id);
 
-                //Assert
-                string actual = Encoding.UTF8.GetString(stream.ToArray()); //laver streamen om til et array og gemmer det
-                Assert.AreEqual($"On {uut.LatestLog} - Door: {id} - unlocked", actual);
-            }
-                ////Arrange
-                //System.IO.StringWriter output = new System.IO.StringWriter();
-                //System.IO.FileStream.
-
-                ////Act
-                //uut.LogDoorUnlocked(id);
-
-                ////Assert
-            }
-        public void checkLogData_Unlocked_AssertInformationHasBeenSaved()
-        {
-
+            //Assert
+            Assert.That($"On {uut.LatestLog} - Door: {id} - unlocked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
         }
-        public void LoggingMultipleLogs_Unlocked_AssertInformationIsAppended()
-        { }
+
+        [TestCase(1, 2)]
+        [TestCase(1, 1)]
+        [TestCase(int.MaxValue, int.MinValue)]
+        [TestCase(-1, 1)]
+        [TestCase(0, 0)]
+        public void LoggingMultipleLogs_Unlocked_AssertAllInformationIsAppended(int id1, int id2)
+        {
+            //Arrange
+            //Act
+            uut.LogDoorUnlocked(id1);
+            DateTime timeOfFirstLog = uut.LatestLog;
+            uut.LogDoorUnlocked(id2);
+
+            //Assert
+            Assert.That($"On {timeOfFirstLog} - Door: {id1} - unlocked\nOn {uut.LatestLog} - Door: {id2} - unlocked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
+        }
         #endregion
         #region logLocked
+        [TestCase(3)]
+        [TestCase(55)]
+        [TestCase(int.MaxValue)]
+        [TestCase(-1)]
+        [TestCase(int.MinValue)]
+        public void RunLoggingCode_Locked_AssertDoorUnlockedLogged(int id)
+        {
+            //Arrange
+            //Act
+            uut.LogDoorUnlocked(id);
+
+            //Assert
+            Assert.That($"On {uut.LatestLog} - Door: {id} - unlocked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
+        }
+
+        [TestCase(1, 2)]
+        [TestCase(1, 1)]
+        [TestCase(int.MaxValue, int.MinValue)]
+        [TestCase(-1, 1)]
+        [TestCase(0, 0)]
+        public void LoggingMultipleLogs_Locked_AssertAllInformationIsAppended(int id1, int id2)
+        {
+            //Arrange
+            //Act
+            uut.LogDoorUnlocked(id1);
+            DateTime timeOfFirstLog = uut.LatestLog;
+            uut.LogDoorUnlocked(id2);
+
+            //Assert
+            Assert.That($"On {timeOfFirstLog} - Door: {id1} - unlocked\nOn {uut.LatestLog} - Door: {id2} - unlocked\n", Is.EqualTo(System.IO.File.ReadAllText(uut.locationOfLogfile)));
+        }
         #endregion
     }
 }
