@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LadeskabLibrary
 {
-    public class StationControl
+    public class StationControl : IStationControl
     {
         public class StationMessageEventArgs : EventArgs
         {
@@ -98,4 +98,21 @@ namespace LadeskabLibrary
         }
     }
 
+    public interface IStationControl
+    {
+        event EventHandler<StationControl.StationMessageEventArgs> newDisplayMessage;
+        IChargeControl chargeControl { get; set; }
+        IDoor door { get; set; }
+        IReader reader { get; set; }
+        ILogger logger { get; set; }
+        bool isDoorOpen { get; set; }
+        bool inUse { get; set; }
+        int? currentId { get; set; }
+        void HandleDoorOpened(object sender, IDoor.DoorEventArgs e);
+        void HandleDoorClosed(object sender, IDoor.DoorEventArgs e);
+        bool CheckId(int id);
+        void HandleIdDetected(object sender, IReader.ReaderEventArgs e);
+        void ErrorHandler(string message);
+
+    }
 }
