@@ -154,7 +154,7 @@ namespace LadeskabLibrary.Tests
         {
             chargeControl.IsConnected().Returns(true);
             Uut.HandleIdDetected(reader, new IReader.ReaderEventArgs() { idRead = 5 });
-            logger.Received().LogDoorLockeD(5);
+            logger.Received().LogDoorLocked(5);
         }
         [Test]
         public void HandleIdDetected_NotInUseChargeConnectedTrueDoorClosed_AssertChargerCalled()
