@@ -68,34 +68,41 @@ namespace LadeskabLibrary
         public void HandleCurrentChanged(object sender, CurrentEventArgs e)
         {
             var currentValue = e.Current;
-            if (currentValue == 0)
+            if (CurrentChargingState != ChargingState.OVERLOAD)
             {
-                CurrentChargingState = ChargingState.IDLE;
-                OnNewChargeState();
+                if (currentValue == 0)
+                {
+                    CurrentChargingState = ChargingState.IDLE;
+                    OnNewChargeState();
+                }
+                else if (currentValue > 0 && currentValue <= 5 && CurrentChargingState != ChargingState.FULL)
+                {
+                    //Write "Fully charged"
+                    CurrentChargingState = ChargingState.FULL;
+                    OnNewChargeState();
+                }
+                else if (currentValue > 5 && currentValue <= 500 && CurrentChargingState != ChargingState.CHARGING)
+                {
+                    //Write "Charging"
+                    CurrentChargingState = ChargingState.CHARGING;
+                    OnNewChargeState();
+                }
+                else if (currentValue > 500 && CurrentChargingState != ChargingState.OVERLOAD)
+                {
+                    UsbCharger.StopCharge();
+                    //Write "Overload error!"
+                    CurrentChargingState = ChargingState.OVERLOAD;
+                    OnNewChargeState();
+                }
             }
-            else if (currentValue > 0 && currentValue <= 5 && CurrentChargingState != ChargingState.FULL)
+            else
             {
-                //Write "Fully charged"
-                CurrentChargingState = ChargingState.FULL;
-                OnNewChargeState();
+                if (!UsbCharger.Connected && currentValue == 0)
+                {
+                    CurrentChargingState = ChargingState.IDLE;
+                    OnNewChargeState();
+                }
             }
-            else if (currentValue > 5 && currentValue <= 500 && CurrentChargingState != ChargingState.CHARGING)
-            {
-                //Write "Charging"
-                CurrentChargingState = ChargingState.CHARGING;
-                OnNewChargeState();
-            }
-            else if (currentValue > 500 && CurrentChargingState != ChargingState.OVERLOAD)
-            {
-                UsbCharger.StopCharge();
-                //Write "Overload error!"
-                CurrentChargingState = ChargingState.OVERLOAD;
-                OnNewChargeState();
-            }
-            //else
-            //{
-            //    throw new Exception("Negative amp error");
-            //}
         }
         void OnNewChargeState()
         {
